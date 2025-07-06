@@ -5,18 +5,15 @@ import { useState, useEffect } from "react";
 //3D Card components
 import Tilt from "react-parallax-tilt";
 
-function CardItem() {
+function CardItem({ score, setScore }) {
   //Defining states for the card, initialising with an empty object
   const [cards, setCards] = useState(null);
-
-  //Defining scores
-  const [score, setScore] = useState(0);
 
   //To generate unique sets of cards
   const randomNumber = Math.floor(Math.random() * 100) + 1;
 
   //A flag for regenerating new cards when a player loses
-  const[fresh, setFresh] = useState(false);
+  const [fresh, setFresh] = useState(false);
 
   //Making an API call using useEffect to get Pokemon cards set
   useEffect(() => {
@@ -24,6 +21,15 @@ function CardItem() {
       setCards(result.data);
     });
   }, [fresh]);
+ 
+  //Checks if your score is 12, which is the max you could get which triggers a won game scenario
+  useEffect(() => {
+    if (score === 12) {
+      alert("Congratulations!! You have a good memory");
+      setScore(0);
+      setFresh((prev) => !prev);
+    }
+  }, [score]);
 
   function cardsRandomize(clickedId) {
     // Create a deep copy of cards with updated clicked flag
@@ -44,7 +50,7 @@ function CardItem() {
     const clickedCard = cards.find((card) => card.id === clickedId);
     if (!clickedCard.clicked) {
       cardsRandomize(clickedId);
-      setScore(score+1);
+      setScore(score + 1);
     } else {
       alert("You already clicked that!");
       setScore(0);
@@ -56,7 +62,6 @@ function CardItem() {
     <div className="cardContainer">
       {cards ? (
         cards.map((card) => {
-          console.log(score);
           return (
             <Tilt>
               <img
@@ -77,8 +82,8 @@ function CardItem() {
   );
 }
 
-function Card() {
-  return <CardItem />;
+function Card(props) {
+  return <CardItem {...props} />;
 }
 
 export default Card;
